@@ -1,95 +1,60 @@
-class Incrementer extends React.Component {
+const scaleName = {
+    c: "celsuis",
+    f: "fahrenheit"
+}
 
+function BoilingVerdict({ celsius }) {
+    if (celsius >= 100) {
+        return <div className="alert alert-danger">L'eau bout</div>
+    }
+    return <div className="alert alert-info" >L'eau ne bout pas</div>
+}
+
+class TemperatureInput extends React.Component {
     constructor(props) {
         super(props)
-        this.state = { n: props.start, timer: null }
-    }
-    componentDidMount() {
-        this.play()
-    }
-    componentWillUnmount() {
-        this.pause()
-    }
-    increment() {
-        this.setState((state, props) => ({ n: state.n + props.step }))
-    }
-    pause() {
-        window.clearInterval(this.state.timer)
-        this.setState({
-            timer: null
-        })
-    }
-    play() {
-        window.clearInterval(this.state.timer)
-        this.setState({
-            timer: window.setInterval(this.increment.bind(this), 1000)
-        })
+        this.state = { temperature: "" }
+        this.handleChange = this.handleChange.bind(this)
     }
 
-    toggle() {
-        return this.state.timer ? this.pause() : this.play()
-    }
-    label() {
-        return this.state.timer ? "Pause" : "Lecture"
-    }
-
-    reset() {
-        this.pause()
-        this.play()
-        this.setState((state, props) => ({ n: props.start }));
+    handleChange(e) {
+        this.setState({ temperature: e.target.value })
     }
 
     render() {
-        console.log("render");
-        return <div>
-            Valeur: {this.state.n}
-            <button onClick={this.toggle.bind(this)}>{this.label()}</button>
-            <button onclick={this.reset.bind(this)}>Réinitilaiser</button>
+        const { temperature } = this.state
+        const name = "scale" + this.props.scale
+        const scaleName = scaleNames[this.props.scale]
+        return <div className="form-group">
 
+            <label htmlFor={name} >Température (en {scaleName})</label>
+            <input type="text" id={name} value={temperature} className="form-control" onChange={this.handleChange} />
         </div>
     }
-
 }
 
-Incrementer.defaultProps = {
-    start: 0,
-    step: 1
-}
-
-class ManuelIncrementer extends React.Component {
+class Calculator extends React.Component {
     constructor(props) {
         super(props)
-        this.state = { n: 0 }
+        this.state = {
+            temperature: ""
+        }
+        // this.handleChange = this.handleChange.bind(this)
     }
 
-    componentDidMount() {
-        this.play()
-    }
-    componentWillUnmount() {
-        this.pause()
-        this.setState({
-            timer: null
-        })
-    }
-    increment(e) {
-        // preventDefault retire l'etat ou l'action explemple un lien http ne fonctionnerais pas
-        e.preventDefault()
-        this.setState((state, props) => ({ n: state.n + 1 }))
-    }
+
+
 
     render() {
-        return <div>Valeur: {this.state.n}
-            <button onClick={this.increment.bind(this)}>Incrémenter</button></div>
+        const { temperature } = this.state
+        return <div>
+            <TemperatureInput scale="c" />
+            <TemperatureInput scale="f" />
+
+            <BoilingVerdict celsius={parseFloat(temperature)} />
+        </div>
     }
 }
 
 
-function Home() {
-    return <div>
-        <Incrementer />
-        {/* <ManuelIncrementer /> */}
-
-    </div>
-}
-
-ReactDOM.render(<Home />, document.querySelector("#app"))
+ReactDOM.render(<Calculator />, document.getElementById("app"))
